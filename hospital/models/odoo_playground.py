@@ -2,7 +2,7 @@ from odoo import api, fields, models, _
 from odoo.tools.safe_eval import safe_eval
 
 
-class OdooPlayGround(models.Model):
+class OdooPlayground (models.Model):
     _name = "odoo.playground"
     _description = "Odoo PlayGround"
 

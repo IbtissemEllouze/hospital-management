@@ -34,15 +34,15 @@ class HospitalPatient(models.Model):
 
     @api.depends('appointment_ids')
     def _compute_appointment_count(self):
-            appointment_group = self.env['hospital.appointment'].read_group(domain=['state' , '=' , 'done'], fields=['patient_id'],
-                                                                            groupby=['patient_id'])
-            for appointment in appointment_group:
-                patient_id = appointment.get('patient_id')[0]
-                patient_rec = self.browse(patient_id)
-                patient_rec.appointment_count = appointment['patient_id_count']
-                self -= patient_rec
-            self.appointment_count = 0
-
+        appointment_group = self.env['hospital.appointment'].read_group(domain=['state', '=', 'done'],
+                                                                        fields=['patient_id'],
+                                                                        groupby=['patient_id'])
+        for appointment in appointment_group:
+            patient_id = appointment.get('patient_id')[0]
+            patient_rec = self.browse(patient_id)
+            patient_rec.appointment_count = appointment['patient_id_count']
+            self -= patient_rec
+        self.appointment_count = 0
 
     @api.ondelete(at_uninstall=False)
     def _check_appointments(self):
@@ -119,3 +119,14 @@ class HospitalPatient(models.Model):
                 if today.day == rec.date_of_birth.day and today.month == rec.date_of_birth.month:
                     is_birthday = True
             rec.is_birthday = is_birthday
+
+    def action_view_appointment(self):
+        return {
+            'name': _('Appointments'),
+            'res_model': 'hospital.appointment',
+                         'view_mode': 'form ,calendar,activity',
+            'context': {'default_patient_id': self.id},
+            'domain': [('patient_id', '=', self.id)],
+            'target': 'current',
+            'type': 'ir.action.act_window',
+        }
